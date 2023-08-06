@@ -1,6 +1,3 @@
-
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,27 +5,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BusesDAOImplementation implements BusesDAO {
+public class BusesDAOImplementation extends BaseDAO implements BusesDAO {
 
-	Connection conn ; //GLOBAL 
-	
 	public BusesDAOImplementation() {
-		try {
-			//1. Load the Driver
-			System.out.println("Trying to load the driver...");
-				DriverManager.registerDriver(new org.hsqldb.jdbc.JDBCDriver());
-			System.out.println("Driver loaded....");
-			
-			//2. Acquire the connection
-			System.out.println("Trying to connect....");
-			conn = 	DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "SA", "");
-			System.out.println("Connected : "+ conn);
-			
-						
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		super();
 	}
 	
 	
@@ -38,20 +18,15 @@ public class BusesDAOImplementation implements BusesDAO {
 		
 		try {
 			PreparedStatement pst = 
-					conn.prepareStatement("INSERT INTO DEPT10 VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+					conn.prepareStatement("INSERT INTO bus VALUES (?,?,?,?,?,?,?)");
 			
 			pst.setInt(1, bus.getBusId());
-			pst.setString(2, bus.getNumber());
-			pst.setString(3,bus.getDeparture());
-			pst.setString(4,bus.getDestination());
-			pst.setString(5,bus.getBusType());
-			pst.setInt(6,bus.getRootId());
-			pst.setInt(7,bus.getJourneyTime());
-			pst.setLong(8,bus.getAvailableDate());
-			pst.setLong(9,bus.getReachingDate());
-			pst.setInt(10,bus.getAvailableSeats());
-			pst.setInt(11,bus.getStartTime());
-			pst.setInt(12,bus.getEndTime());
+			pst.setString(2, bus.getBusNumber());
+			pst.setString(3,bus.getTravelAgency());
+			pst.setString(4,bus.getBusType());
+			pst.setInt(6,bus.getAvailableSeats());
+			pst.setInt(5,bus.getTotalSeats());
+			pst.setFloat(7,bus.getFare());
 
 			System.out.println("PreparedStatement is created : "+ pst);
 			
@@ -76,24 +51,19 @@ public class BusesDAOImplementation implements BusesDAO {
 			System.out.println("Statement is created : "+ statement);
 			
 			//4. execute that statement //  UR TABLENAME IS MYDEPT120
-			ResultSet result = statement.executeQuery("SELECT * FROM DEPT10 WHERE DEPTNO="+busId);
+			ResultSet result = statement.executeQuery("SELECT * FROM bus WHERE busid="+busId);
 			
 			//5. process teh result if any
 			if(result.next()) {
 				busObj = new Buses(); //blank object
 				
 				busObj.setBusId(result.getInt(1));
-				busObj.setNumber(result.getString(2));
-				busObj.setDeparture(result.getString(3));
-				busObj.setDestination(result.getString(4));
-				busObj.setBusType(result.getString(5));
-				busObj.setRootId(result.getInt(6));
-				busObj.setJourneyTime(result.getInt(7));
-				busObj.setAvailableDate(result.getLong(8));
-				busObj.setReachingDate(result.getLong(9));
-				busObj.setAvailableSeats(result.getInt(10));
-				busObj.setStartTime(result.getInt(11));
-				busObj.setEndTime(result.getInt(12));
+				busObj.setBusNumber(result.getString(2));
+				busObj.setTravelAgency(result.getString(3));
+				busObj.setBusType(result.getString(4));
+				busObj.setTotalSeats(result.getInt(5));
+				busObj.setAvailableSeats(result.getInt(6));
+				busObj.setFare(result.getFloat(7));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -113,24 +83,19 @@ public class BusesDAOImplementation implements BusesDAO {
 			System.out.println("Statement is created : "+ statement);
 			
 			//4. execute that statement //  UR TABLENAME IS MYDEPT120
-			ResultSet result = statement.executeQuery("SELECT * FROM DEPT10");
+			ResultSet result = statement.executeQuery("SELECT * FROM bus");
 			
 			//5. process teh result if any
 			while(result.next()) {
 				Buses busObj = new Buses(); //blank object
 				
 				busObj.setBusId(result.getInt(1));
-				busObj.setNumber(result.getString(2));
-				busObj.setDeparture(result.getString(3));
-				busObj.setDestination(result.getString(4));
-				busObj.setBusType(result.getString(5));
-				busObj.setRootId(result.getInt(6));
-				busObj.setJourneyTime(result.getInt(7));
-				busObj.setAvailableDate(result.getLong(8));
-				busObj.setReachingDate(result.getLong(9));
-				busObj.setAvailableSeats(result.getInt(10));
-				busObj.setStartTime(result.getInt(11));
-				busObj.setEndTime(result.getInt(12));
+				busObj.setBusNumber(result.getString(2));
+				busObj.setTravelAgency(result.getString(3));
+				busObj.setBusType(result.getString(4));
+				busObj.setTotalSeats(result.getInt(5));
+				busObj.setAvailableSeats(result.getInt(6));
+				busObj.setFare(result.getFloat(7));
 				busList.add(busObj); // add this object to the LIST 
 			}
 		} catch (SQLException e) {
@@ -146,21 +111,16 @@ public class BusesDAOImplementation implements BusesDAO {
 		
 				try {
 					PreparedStatement pst = 
-							conn.prepareStatement("UPDATE DEPT10 set dname=?, loc=? where deptno=?");
+							conn.prepareStatement("UPDATE bus set busnumber=?, travelagency=? bustype=? totalseats=? availableseats=? fare=? where busid=?");
 					
 					
-					pst.setInt(1, bus.getBusId());
-					pst.setString(2, bus.getNumber());
-					pst.setString(3,bus.getDeparture());
-					pst.setString(4,bus.getDestination());
-					pst.setString(5,bus.getBusType());
-					pst.setInt(6,bus.getRootId());
-					pst.setInt(7,bus.getJourneyTime());
-					pst.setLong(8,bus.getAvailableDate());
-					pst.setLong(9,bus.getReachingDate());
-					pst.setInt(10,bus.getAvailableSeats());
-					pst.setInt(11,bus.getStartTime());
-					pst.setInt(12,bus.getEndTime());
+					pst.setInt(7, bus.getBusId());
+					pst.setString(1, bus.getBusNumber());
+					pst.setString(2,bus.getTravelAgency());
+					pst.setString(3,bus.getBusType());
+					pst.setInt(5,bus.getAvailableSeats());
+					pst.setInt(4,bus.getTotalSeats());
+					pst.setFloat(6,bus.getFare());
 
 					
 					System.out.println("PreparedStatement is created : "+ pst);
@@ -181,7 +141,7 @@ public class BusesDAOImplementation implements BusesDAO {
 		
 		try {
 			PreparedStatement pst = 
-					conn.prepareStatement("DELETE FROM DEPT10 where deptno=?");
+					conn.prepareStatement("DELETE FROM bus where busid=?");
 			
 			pst.setInt(1, busId); //WHERE deptno=?
 
